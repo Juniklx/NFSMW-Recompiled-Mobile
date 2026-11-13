@@ -36,7 +36,7 @@ def check_source() -> None:
     assert cpp.count("NFSMW_PRE170") == 2, "Duplicate PRE170 comments"
     assert cpp.count("void SDLInputDriver::QueueControllerUpdate()") == 1
     # Exact PRE170 block from the authenticated private V51 SDK input review.
-    method_prefix = cpp.split("void SDLInputDriver::QueueControllerUpdate() {\\n", 1)[1].split("  // Pump SDL events", 1)[0]
+    method_prefix = cpp.split("void SDLInputDriver::QueueControllerUpdate() {\n", 1)[1].split("  // Pump SDL events", 1)[0]
     expected_pre170_hash = "0831a7b2e99a702b3dc2d0a7b6f8f961059ca2b261ab0999ad1e4a92322d07d4"
     assert hashlib.sha256(method_prefix.encode("utf-8")).hexdigest() == expected_pre170_hash, "PRE170 V51 block mismatch"
     print("MIG_A5_PRE170_V51_BLOCK_SHA_MATCH=TRUE")
