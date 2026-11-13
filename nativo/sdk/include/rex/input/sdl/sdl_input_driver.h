@@ -12,6 +12,7 @@
 #pragma once
 
 #include <atomic>
+#include <cstdint>  // NFSMW_PRE170
 #include <mutex>
 #include <optional>
 #include <vector>
@@ -103,6 +104,7 @@ class SDLInputDriver final : public InputDriver, public rex::ui::WindowListener 
   bool SDL_Gamepad_initialized_;
   std::atomic<int> sdl_events_unflushed_;
   std::atomic<bool> sdl_pumpevents_queued_;
+  std::atomic<std::int64_t> sdl_next_pump_ns_{0};  // NFSMW_PRE170
   // Appended in connection order, never re-sorted, and unbounded: the
   // assignment decides how many the guest sees.
   std::vector<ControllerState> controllers_;

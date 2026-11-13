@@ -1,0 +1,35 @@
+name: NFSMW MIG-A5 - PRE170 SDL Input Source Guard
+on:
+  push:
+    branches: [feature/mig-a5-pre170-android-sdl-pump]
+    paths:
+      - '.github/workflows/mig-a5-pre170-source-guard.yml'
+      - 'tools/ci/mig_a5_pre170_source_guard.py'
+      - 'nativo/sdk/include/rex/input/sdl/sdl_input_driver.h'
+      - 'nativo/sdk/src/input/sdl/sdl_input_driver.cpp'
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/mig-a5-pre170-source-guard.yml'
+      - 'tools/ci/mig_a5_pre170_source_guard.py'
+      - 'nativo/sdk/include/rex/input/sdl/sdl_input_driver.h'
+      - 'nativo/sdk/src/input/sdl/sdl_input_driver.cpp'
+permissions:
+  contents: read
+jobs:
+  source-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify V51 source fingerprint and host-only atomic cadence
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile tools/ci/mig_a5_pre170_source_guard.py
+          python tools/ci/mig_a5_pre170_source_guard.py
