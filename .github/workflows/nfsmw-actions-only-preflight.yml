@@ -1,0 +1,58 @@
+name: NFSMW - Actions Only Source Preflight
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - ci/actions-only-migration
+    paths:
+      - '.github/workflows/nfsmw-actions-only-preflight.yml'
+      - 'tools/ci/actions_only_preflight.py'
+      - 'docs/CI_ACTIONS_ONLY_NFSMW.md'
+  pull_request:
+    paths:
+      - '.github/workflows/nfsmw-actions-only-preflight.yml'
+      - 'tools/ci/actions_only_preflight.py'
+      - 'docs/CI_ACTIONS_ONLY_NFSMW.md'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nfsmw-actions-only-preflight-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  source-preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout public source only
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Check Python scripts syntax without importing modules
+        run: |
+          set -euo pipefail
+          python3 -m compileall -q tools/android nativo/tools tools/ci
+      - name: Check source build helper shell syntax
+        run: |
+          set -euo pipefail
+          sh -n nativo/build_android.sh
+      - name: Verify tracked data and Android identity; do not build APK
+        run: |
+          set -euo pipefail
+          python3 tools/ci/actions_only_preflight.py --root . --output "$RUNNER_TEMP/nfsmw_ci_preflight.json"
+          {
+            echo '### NFSMW Actions-only source preflight'
+            echo 'Source syntax, tracked-file data safety and Android identity checked.'
+            echo 'No proprietary ISO, signing key, playable APK, or performance test is included.'
+            echo 'The upstream fork currently does **not** represent the V51 signed baseline.'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Save public, source-only verification report
+        uses: actions/upload-artifact@v4
+        with:
+          name: nfsmw-actions-only-source-preflight
+          path: ${{ runner.temp }}/nfsmw_ci_preflight.json
+          if-no-files-found: error
+          retention-days: 7
