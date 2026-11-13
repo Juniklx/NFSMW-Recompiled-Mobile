@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "stage": "MIG_A2_V51_PRE696_PINNED_SOURCE_HASHES",
+  "ref_date": "2026-11-11",
+  "source_artifact": {
+    "name": "NFSMW_PRE696_V51_AUTHENTICATED_SOURCE_43100424122.zip",
+    "drive_id": "1JeOiiM0kei3dyLheQ2q5gNsNito5d4ku",
+    "sha256": "d06e06d4dda54d4b50924ec5a404ef396c91cef2166f7b9e055f4b5910154075",
+    "crc_ok": true,
+    "contains_source_code": false,
+    "pre99_sha256": "af8e82e198d00656814477fd64b8cc791fada21d937c1aa1cc583e5d37768b39",
+    "replayed_V51_binaries_equivalent_to_signed_APK": false
+  },
+  "files": [
+    {
+      "id": "presenter",
+      "path": "nativo/sdk/src/ui/vulkan/vulkan_presenter.cpp",
+      "sha256": "68998a1db81e9743197e446a5f8dacbf8d3dbcc2a51e4a7e6dac476b87d88c48",
+      "bytes": 169876
+    },
+    {
+      "id": "presenter_header",
+      "path": "nativo/sdk/include/rex/ui/vulkan/presenter.h",
+      "sha256": "20740978563fb40e5d6b66b51a89a7b81238f1d8967d0462ccd81c5552c35731",
+      "bytes": 26054
+    },
+    {
+      "id": "graphics_cvar",
+      "path": "nativo/app/src/nfsmw_ajustes_graficos.cpp",
+      "sha256": "8c94be96dc6a45ee9eec6f380522008d36d170205fa6dbe9eeffb7bb0fd1df2b",
+      "bytes": 25298
+    },
+    {
+      "id": "vblank_thread",
+      "path": "nativo/app/src/nfsmw_nativo_sistema.cpp",
+      "sha256": "b8bc3f3cfbd9e53755387cdb3aca61961093873bb995dea8648a753920d09be2",
+      "bytes": 250253
+    },
+    {
+      "id": "backend",
+      "path": "nativo/app/src/nfsmw_nativo_destinos.cpp",
+      "sha256": "b70497df49440b469018e7ef7a0e007d39ab5df13aa979edc91f37e1d2d42385",
+      "bytes": 340248
+    },
+    {
+      "id": "java_args",
+      "path": "android/app/src/main/java/io/github/nfsmwrecomp/MotorNativo.java",
+      "sha256": "ddfcbd976ee170c7129b99042f226c411a955959f847cae82e09968d18382aaa",
+      "bytes": 16956
+    },
+    {
+      "id": "java_settings",
+      "path": "android/app/src/main/java/io/github/nfsmwrecomp/Ajustes.java",
+      "sha256": "d2c2df7f9b8bc838ce9d0e2adf31e4630b6bcd0d6cebfc69439ac94fe6e736b8",
+      "bytes": 40220
+    }
+  ],
+  "extra_in_memory_only": {
+    "renderer_path": "nativo/app/src/nfsmw_nativo_dibujos.cpp",
+    "renderer_v50_replayed_sha256": "1f890953380502abd0cfc7d140a102bbd7470aff6ca2d37b039a16d9c6ffeb92",
+    "renderer_v51_patch_in_memory_sha256": "9a76c240852b0cc5c6c80ef608cab3d9302c75368b3237440905caec873dbee2",
+    "disk_comparable_reference": false
+  },
+  "scope": "fingerprint-only comparison; no V51 code transplanted; differences require semantic diff from authenticated source"
+}
