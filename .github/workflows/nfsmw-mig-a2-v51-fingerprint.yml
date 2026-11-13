@@ -1,0 +1,55 @@
+name: NFSMW MIG-A2 - V51 Source Fingerprints (Actions Only)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ci/mig-a2-v51-source-fingerprints]
+    paths:
+      - '.github/workflows/nfsmw-mig-a2-v51-fingerprint.yml'
+      - 'tools/ci/v51_fork_hash_compare.py'
+      - 'tools/ci/v51_pre696_pinned_manifest.json'
+  pull_request:
+    paths:
+      - '.github/workflows/nfsmw-mig-a2-v51-fingerprint.yml'
+      - 'tools/ci/v51_fork_hash_compare.py'
+      - 'tools/ci/v51_pre696_pinned_manifest.json'
+
+permissions:
+  contents: read
+
+jobs:
+  compare-source-fingerprints:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout public fork
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Validate V51 reference manifest and analyzer
+        run: |
+          set -euo pipefail
+          python3 -m py_compile tools/ci/v51_fork_hash_compare.py
+          python3 tools/ci/v51_fork_hash_compare.py --self-test
+      - name: Calculate SHA256 and size comparison - no private files
+        run: |
+          set -euo pipefail
+          python3 tools/ci/v51_fork_hash_compare.py --root . --output "$RUNNER_TEMP/mig_a2_v51_fork_diff.json"
+          python3 - <<'PY'
+          import json, os
+          p=os.environ["RUNNER_TEMP"]+"/mig_a2_v51_fork_diff.json"
+          j=json.load(open(p))
+          with open(os.environ["GITHUB_STEP_SUMMARY"],"a") as f:
+              f.write("## MIG-A2: fork vs V51 authenticated source fingerprints\n\n")
+              f.write("Reference is the **PRE696 recipe**, not binary-equivalent proof for signed V51.\n\n")
+              for k,v in j["counts"].items():
+                  f.write("- "+k+": "+str(v)+"\n")
+              f.write("\nThe workflow only compared seven hashes and sizes. No APK, signing or game data.\n")
+          PY
+      - name: Retain sanitized comparison report
+        uses: actions/upload-artifact@v4
+        with:
+          name: nfsmw-mig-a2-v51-source-fingerprints
+          path: ${{ runner.temp }}/mig_a2_v51_fork_diff.json
+          retention-days: 14
+          if-no-files-found: error
