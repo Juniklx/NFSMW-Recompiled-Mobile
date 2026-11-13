@@ -10,6 +10,7 @@
  */
 
 #include <array>
+#include <chrono>  // NFSMW_PRE170 Android input pump cadence
 #include <filesystem>
 
 #include <rex/assert.h>
@@ -786,6 +787,21 @@ void SDLInputDriver::UpdateXCapabilities(ControllerState& state) {
 }
 
 void SDLInputDriver::QueueControllerUpdate() {
+#if REX_PLATFORM_ANDROID
+  // NFSMW_PRE170: avoid redundant SDL pump requests closer than 8ms.
+  // SDL hotplug polling is retained, and touch/PG bridge state is read
+  // independently. Compare-and-swap bounds requests across guest threads.
+  const int64_t now_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(
+      std::chrono::steady_clock::now().time_since_epoch()).count();
+  constexpr int64_t kMinIntervalNs = 8'000'000;
+  int64_t next_ns = sdl_next_pump_ns_.load(std::memory_order_relaxed);
+  while (true) {
+    if (now_ns < next_ns) return;
+    if (sdl_next_pump_ns_.compare_exchange_weak(
+            next_ns, now_ns + kMinIntervalNs,
+            std::memory_order_relaxed, std::memory_order_relaxed)) break;
+  }
+#endif
   // Pump SDL events to ensure controller state is up to date.
   bool is_queued = false;
   sdl_pumpevents_queued_.compare_exchange_strong(is_queued, true);
