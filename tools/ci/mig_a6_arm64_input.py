@@ -44,6 +44,8 @@ def main():
             raise RuntimeError("Pinned Android NDK missing")
         report["ndk"] = NDK_VERSION
         report["api"] = 26
+        report["native_definitions"] = {"REXGLUE_ENABLE_TRACY": "OFF", "REX_HAS_FIDELITYFX_SDK": 1}
+        report["sdk_link_equivalence_to_apk"] = False
         report["abi"] = "arm64-v8a"
         report["stage"] = "dependencies"
         # The repository helper pins rexglue-sdk to c94f5eb... and preserves
@@ -61,7 +63,10 @@ def main():
              f"-DCMAKE_TOOLCHAIN_FILE={ndk}/build/cmake/android.toolchain.cmake",
              "-DANDROID_ABI=arm64-v8a", "-DANDROID_PLATFORM=android-26",
              "-DANDROID_STL=c++_shared", "-DCMAKE_BUILD_TYPE=Release",
-             "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON", "-DREXGLUE_BUILD_TESTS=OFF"], timeout=300)
+             "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON", "-DREXGLUE_BUILD_TESTS=OFF",
+             "-DREXGLUE_ENABLE_TRACY=OFF",
+             "-DREXGLUE_VERSION_OVERRIDE=0.10.0-dev.android",
+             "-DCMAKE_CXX_FLAGS=-DREX_HAS_FIDELITYFX_SDK=1"], timeout=300)
         report["stage"] = "compile"
         # Exact Ninja object target: use the real CMake includes, definitions
         # and precompiled header, without linking a complete game or SDK.
