@@ -1,0 +1,40 @@
+name: NFSMW MIG-A6 - Real Android ARM64 input compile
+on:
+  push:
+    branches: [feature/mig-a5-pre170-android-sdl-pump]
+    paths:
+      - '.github/workflows/mig-a6-arm64-input.yml'
+      - 'tools/ci/mig_a6_arm64_input.py'
+      - 'nativo/sdk/include/rex/input/sdl/sdl_input_driver.h'
+      - 'nativo/sdk/src/input/sdl/sdl_input_driver.cpp'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: mig-a6-arm64-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  arm64-input:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Verify source guard before fetching dependencies
+        run: python3 tools/ci/mig_a5_pre170_source_guard.py
+      - name: Set up Android tools and pinned NDK
+        uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407
+        with:
+          packages: 'ndk;28.2.13676358 cmake;3.31.6'
+          log-accepted-android-sdk-licenses: false
+      - name: Compile real SDK input object and validate AArch64 ELF
+        run: python3 tools/ci/mig_a6_arm64_input.py
+      - name: Save metadata evidence only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mig-a6-arm64-input-evidence
+          path: ${{ runner.temp }}/mig-a6-arm64-input.json
+          if-no-files-found: warn
+          retention-days: 14

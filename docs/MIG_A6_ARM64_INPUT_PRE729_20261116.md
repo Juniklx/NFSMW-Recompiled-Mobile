@@ -1,0 +1,30 @@
+# Continuação verificada — MIG-A6 e PRE729 (16/11/2026, Bahia)
+
+## MIG-A6 — compilação real do arquivo de entrada Android/ARM64
+
+- Run conclusivo: https://github.com/Juniklx/NFSMW-Recompiled-Mobile/actions/runs/43926528731 — completed/success, job 133507371498. Checkout 9d63cc584f7175d216002af5533544c2fbeeeb0b, branch feature/mig-a5-pre170-android-sdl-pump. PR #5 continua draft e NÃO mesclado.
+- Compilado o arquivo real nativo/sdk/src/input/sdl/sdl_input_driver.cpp e seu PCH pelo grafo CMake do SDK, usando dependências restauradas pelo helper público que fixa rexglue-sdk c94f5ebdcb3c9d1a460ca48e04f9758448f8d518. Não se trata do teste atômico sintético da MIG-A5.
+- NDK 28.2.13676358, Clang 19.0.1, CMake 3.31.6, C++23 Release, target aarch64-none-linux-android26. Definições conferidas com android/app/src/main/cpp/nativo/nativo.cmake: Tracy OFF e REX_HAS_FIDELITYFX_SDK=1. Vulkan ON. Não foi compilada/linkada toda a biblioteca do SDK nem o jogo.
+- Header SHA256 6b532f228805dbd57aaaa3d4e19d6febf784506ebacd6b80216af254cae2f5ca; CPP SHA256 cdb414860777cf222612b98e46280c2e3349adbbfbb5d0eb8f94e4dd0dc76ea1. O guard MIG-A5 confirmou novamente a identidade do bloco PRE170 e ausência da instrumentação PRE364.
+- Objeto gerado: ELF64 little-endian AArch64 ET_REL, 1.578.560 bytes, SHA256 a9930bb884401a0163ba5898025add8aa95942cb83e5be0e26f395cb90573999. llvm-nm confirmou SDLInputDriver::QueueControllerUpdate() e rex_sdl_set_touch_gamepad_state. Isso NÃO comprova ligação JNI, funcionamento do PG-9076, latência ou identidade com a V51 instalada.
+- Dois avisos de parâmetro flags não usado no CPP; não houve erro C++. Primeira execução 43925863372 falhou antes da compilação por sdkmanager ausente do PATH; corrigida com setup-android em commit fixo 9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407. Execução intermediária 43925998512 passou com configuração standalone; a conclusão usa a execução posterior com definições alinhadas ao motor nativo.
+- Artefato JSON, sem binário/código do jogo/assinatura: GitHub 14257820034, ZIP 1.451 bytes, SHA256 ee4cf13c46da437b17daf54b023ffdbf99241be03187f035854d73e111677b0c, download local autenticado e CRC conferidos. Cópia no Drive: https://drive.google.com/file/d/1TCtvkriBZYUbfExogdfuvLjCm9za18a6/view .
+- Infraestrutura adicionada: tools/ci/mig_a6_arm64_input.py e .github/workflows/mig-a6-arm64-input.yml. Nenhuma mudança adicional ao algoritmo PRE170 foi aplicada nesta etapa.
+- Limites para futura release: reconciliar demais patches V51, UI/overlay, renderizador, SDL thirdparty e ponte Android; compilar/linkar SDK e app; manter assinatura permanente e versão incremental; testar touch/PG-9076, reconexão, pausa/resumo e fluidez. GameActivity do fork delega eventos físicos ao SDL; a presença do símbolo touch no objeto não autentica a ponte V3 histórica. Não distribuir o Gradle upstream com signing debug/versionCode 16 como atualização.
+
+STATUS: MIG_A6_REAL_ARM64_INPUT_OBJECT_PASS; FULL_SDK_LINK_NOT_TESTED; APK_NOT_BUILT; PR5_DRAFT; NO_V52; NO_FPS_GAIN.
+
+## PRE729 — sonda de capacidade pronta; execução física pendente
+
+- Mantido o próximo gate de desempenho definido na PRE728. Preparado tools/diagnostics/nfsmw_pre729_probe_capture.sh, isolado no PR #6 draft: https://github.com/Juniklx/NFSMW-Recompiled-Mobile/pull/6 . Branch perf/pre729-capture-capability; commit f03581d927ee5640ee2197cfda722ac5b8bc77bc. Nenhuma mesclagem em main.
+- A sonda exige UID 2000(shell), versionCode 51 e timeout disponível; aguarda 20 segundos para retornar ao jogo. Consulta perfetto --version/--query, atrace --list_categories, thermalservice e a lista de camadas. Lê SurfaceFlinger --latency três vezes apenas quando existe uma única SurfaceView do pacote. Não inicia tracing nem o jogo, não limpa contadores, não muda APK, clocks, override térmico ou configurações.
+- Registra códigos de retorno e timestamps brutos. Desconsidera linhas zeradas e o sentinela 9223372036854775807 na contagem de triplas válidas. Não calcula FPS, não afirma que houve quadros novos entre amostras e não estabelece alinhamento entre BOOTTIME/MONOTONIC. Uma consulta Perfetto bem-sucedida também não prova que será possível capturar todos os eventos necessários.
+- Sintaxe POSIX sh e seis cenários simulados passaram localmente e em GitHub Actions https://github.com/Juniklx/NFSMW-Recompiled-Mobile/actions/runs/43926857453, job 133508511018, completed/success. Cenários: UID incorreto, versão divergente, uma/zero/múltiplas camadas e timeout do Perfetto. Esses testes NÃO foram realizados no S24 FE.
+- Script no Drive 03_Scripts_e_Patches: https://drive.google.com/file/d/15LSp1XeTJ9TWs3YEzuNoakcbwjLWlubb/view . 3.530 bytes, SHA256 be57a19aa54475c877878d2841730ae2b56ddeba4612acdcc2f235200d10c995; bytes baixados do Drive idênticos ao arquivo enviado.
+- Referências consultadas: https://perfetto.dev/docs/reference/perfetto-cli (semântica de --query) e código oficial SurfaceFlinger para --list/--latency. Suporte efetivo Samsung continua condicionado ao resultado no aparelho.
+- Próximo passo do usuário: baixar o script para Download; abrir V51 no cenário de teste; no Shevery executar `sh /sdcard/Download/nfsmw_pre729_probe_capture.sh`; retornar ao jogo dentro dos 20 segundos e deixar o carro parado. Enviar o novo NFSMW_PRE729_CAPACIDADE_*.txt em Download. Em caso de erro, preservar a mensagem e analisar antes de alterar script ou pedir reinstalação.
+- Próximo passo técnico: ler o TXT e verificar versão, camada, triplas válidas, capacidade Perfetto/atrace e estado térmico; só depois definir a captura sincronizada. A referência PRE700/PRE728 tinha cap efetivo 60 FPS e display 120Hz, não uma medição de 120 FPS do jogo.
+
+STATUS: PRE729_PROBE_PREPARED; SIX_MOCK_TESTS_PASS; DEVICE_RESULT_PENDING; CLOCK_ALIGNMENT_UNPROVEN; NO_FPS_GAIN.
+
+Preservados: V51 instalada, io.github.nfsmwrecomp, certificado permanente SHA256 1ba7bda576cca036f8cb18f496bf7b04e65ff76da43d5c788291059d930d104b, 1920x1080, meta 120 FPS sem mudança do limite efetivo, shaders/efeitos/física, saves e proteções térmicas. Nenhuma APK criada, chave acessada ou desempenho melhorado demonstrado.
