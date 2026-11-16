@@ -1,0 +1,19 @@
+name: NFSMW PRE729 - Capture probe guards
+on:
+  push:
+    branches: [perf/pre729-capture-capability]
+    paths:
+      - '.github/workflows/pre729-capture-probe.yml'
+      - 'tools/diagnostics/nfsmw_pre729_probe_capture.sh'
+      - 'tools/ci/test_pre729_probe.py'
+permissions:
+  contents: read
+jobs:
+  shell-mocks:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - run: python3 tools/ci/test_pre729_probe.py
