@@ -6,6 +6,8 @@ on:
       - '.github/workflows/pre729-capture-probe.yml'
       - 'tools/diagnostics/nfsmw_pre729_probe_capture.sh'
       - 'tools/ci/test_pre729_probe.py'
+      - 'tools/diagnostics/nfsmw_pre729b_probe_capture.sh'
+      - 'tools/ci/test_pre729b_probe.py'
 permissions:
   contents: read
 jobs:
@@ -17,3 +19,4 @@ jobs:
         with:
           persist-credentials: false
       - run: python3 tools/ci/test_pre729_probe.py
+      - run: python3 tools/ci/test_pre729b_probe.py
