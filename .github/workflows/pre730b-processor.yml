@@ -14,6 +14,7 @@ jobs:
           curl -fsSL --retry 3 https://github.com/google/perfetto/releases/download/v54.0/linux-amd64.zip -o linux.zip
           echo '2066ad35f7f56baf622f88506ded9cc07e2bc569417e7cd22e057126c06da382  linux.zip' | sha256sum -c -
           unzip -j linux.zip '*trace_processor_shell' -d bin
+          chmod +x bin/trace_processor_shell
           bin/trace_processor_shell --version
       - uses: actions/upload-artifact@v4
         with:
