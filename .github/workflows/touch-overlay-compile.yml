@@ -1,0 +1,37 @@
+name: Compile touch overlay
+on:
+  push:
+    branches: [perf/touch-move-redraw]
+    paths: ['android/app/src/main/java/io/github/nfsmwrecomp/TouchControllerView.java', '.github/workflows/touch-overlay-compile.yml']
+permissions:
+  contents: read
+jobs:
+  compile:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile view and controller bridge against Android 36
+        shell: bash
+        run: |
+          dir=$(mktemp -d)
+          pkg=android/app/src/main/java/io/github/nfsmwrecomp
+          jar="$ANDROID_HOME/platforms/android-36/android.jar"
+          if ! test -f "$jar"; then "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-36'; fi
+          cat > "$dir/Dependencies.java" <<'JAVA'
+          package io.github.nfsmwrecomp;
+          import android.content.Context;
+          class GameActivity {
+              static final int CALLADA_EDITOR=2, CALLADA_MANDO=4;
+              static void callarVibracion(int reason, boolean value) {}
+          }
+          class Ajustes {
+              Ajustes(Context c) {}
+              native boolean girarInclinando();
+              native boolean girarConFlechas();
+              native int sensibilidadGiro();
+              static native float anguloGiro(int s);
+              native boolean menusTactiles();
+              native boolean deslizarInvertido();
+          }
+          JAVA
+          javac -encoding UTF-8 -cp "$jar" -d "$dir" "$dir/Dependencies.java" "$pkg/TouchControllerBridge.java" "$pkg/TouchControllerView.java"
