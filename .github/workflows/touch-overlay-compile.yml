@@ -34,4 +34,11 @@ jobs:
               native boolean deslizarInvertido();
           }
           JAVA
-          javac -encoding UTF-8 -cp "$jar" -d "$dir" "$dir/Dependencies.java" "$pkg/TouchControllerBridge.java" "$pkg/TouchControllerView.java"
+          python3 - "$dir" <<'PY'
+          import pathlib, sys, xml.etree.ElementTree as ET
+          strings = ET.parse("android/app/src/main/res/values/strings.xml").getroot()
+          fields = [f"static int {tag.attrib['name']};" for tag in strings.findall("string")]
+          (pathlib.Path(sys.argv[1]) / "R.java").write_text(
+              "package io.github.nfsmwrecomp; class R {static class string {" + "\n".join(fields) + "}}")
+          PY
+          javac -encoding UTF-8 -cp "$jar" -d "$dir" "$dir/Dependencies.java" "$dir/R.java" "$pkg/TouchControllerBridge.java" "$pkg/TouchControllerView.java"
