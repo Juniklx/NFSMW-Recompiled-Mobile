@@ -38,7 +38,8 @@ jobs:
           import pathlib, sys, xml.etree.ElementTree as ET
           strings = ET.parse("android/app/src/main/res/values/strings.xml").getroot()
           fields = [f"static int {tag.attrib['name']};" for tag in strings.findall("string")]
+          fonts = [f"static int {f.stem};" for f in pathlib.Path("android/app/src/main/res/font").glob("*") if f.is_file()]
           (pathlib.Path(sys.argv[1]) / "R.java").write_text(
-              "package io.github.nfsmwrecomp; class R {static class string {" + "\n".join(fields) + "}}")
+              "package io.github.nfsmwrecomp; class R {static class string {" + "\n".join(fields) + "}static class font {" + "\n".join(fonts) + "}}")
           PY
           javac -encoding UTF-8 -cp "$jar" -d "$dir" "$dir/Dependencies.java" "$dir/R.java" "$pkg/TouchControllerBridge.java" "$pkg/TouchControllerView.java"
