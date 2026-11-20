@@ -39,7 +39,7 @@ jobs:
           root=Path("nativo/app")
           cmake=(root/"CMakeLists.txt").read_text()
           hook=(root/"src/nfsmw_catchup_carreira.cpp").read_text()
-          assert cmake.count("src/nfsmw_catchup_carreira.cpp")==1
+          assert cmake.count("src/nfsmw_catchup_carreira.cpp")==0  # USA guest map not validated yet
           assert hook.count("REX_HOOK_RAW(sub_82332898)")==1
           assert "REXCVAR_DEFINE_BOOL(nfsmw_sem_catchup_carreira, false" in hook
           assert "__imp__sub_82332898(ctx, base);" in hook

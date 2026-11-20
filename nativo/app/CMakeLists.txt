@@ -24,8 +24,6 @@ set(NFSMW_SOURCES
     # Race-time reductions: road reflection and faces of the car's cubemap
     # (cvars nfsmw_reflejo_carretera and nfsmw_cubemap_caras_max).
     src/nfsmw_recortes_carrera.cpp
-    # PRE744 experimental Career-only Catch-Up intervention (OFF by default).
-    src/nfsmw_catchup_carreira.cpp
     # Rescues the game's audio server thread if the XAudio voice stops
     # returning end-of-packet notifications (cvar nfsmw_audio_rescate).
     src/nfsmw_audio_servidor.cpp
