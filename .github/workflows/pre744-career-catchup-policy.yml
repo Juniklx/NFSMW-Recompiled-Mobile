@@ -26,7 +26,7 @@ jobs:
         run: |
           set -euo pipefail
           sudo apt-get update -qq >/dev/null
-          sudo apt-get install -y -qq libfmt-dev libspdlog-dev >/dev/null
+          sudo apt-get install -y -qq libfmt-dev libspdlog-dev libsimde-dev >/dev/null
           c++ -std=c++23 -fsyntax-only \
             -I nativo/sdk/include \
             nativo/app/src/nfsmw_catchup_carreira.cpp
