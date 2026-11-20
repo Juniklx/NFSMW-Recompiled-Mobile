@@ -1,0 +1,48 @@
+name: NFSMW PRE751 - PAL career Catch-Up standalone policy and SDK checks
+on:
+  push:
+    branches: [feature/pre751-pal-career-catchup]
+    paths:
+      - 'nativo/experimental/pal_catchup/**'
+      - '.github/workflows/pre751-pal-catchup-policy.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  pal-policy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile and run isolated PAL career-only policy
+        run: |
+          set -euo pipefail
+          g++ -std=c++23 -Wall -Wextra -Werror -pedantic             nativo/experimental/pal_catchup/tests/test_catchup_carreira_policy.cpp             -o "$RUNNER_TEMP/pre751_pal_policy"
+          "$RUNNER_TEMP/pre751_pal_policy"
+          echo "PRE751_PAL_POLICY_PASS=1" >> "$GITHUB_STEP_SUMMARY"
+      - name: Compile actual PAL hook syntax against project ReX SDK
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq > /dev/null
+          sudo apt-get install -y -qq libfmt-dev libspdlog-dev libsimde-dev > /dev/null
+          c++ -std=c++23 -fsyntax-only -I nativo/sdk/include             nativo/experimental/pal_catchup/nfsmw_catchup_carreira.cpp
+          echo "PRE751_PAL_REAL_SDK_SYNTAX_PASS=1" >> "$GITHUB_STEP_SUMMARY"
+      - name: Verify only PAL guest target; no production tree, no APK
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          root=Path("nativo/experimental/pal_catchup")
+          cpp=(root/"nfsmw_catchup_carreira.cpp").read_text()
+          hdr=(root/"nfsmw_catchup_carreira_policy.h").read_text()
+          pal=(Path("nativo/app/CMakeLists.txt")).read_text()
+          assert cpp.count("REX_HOOK_RAW(sub_82332898)")==1
+          assert cpp.count("REX_EXTERN(__imp__sub_82332898);")==1
+          assert cpp.count("__imp__sub_82332898(ctx, base);")==1
+          assert "sub_823328C0" not in cpp
+          assert "REXCVAR_DEFINE_BOOL(nfsmw_sem_catchup_carreira, false" in cpp
+          assert "kContextoCarreira = 2u" in hdr
+          assert "kOffsetContexto = 6700u" in hdr
+          assert "kRaceStatusGlobal = 0x82A2CB18u" in hdr
+          assert pal.count("src/nfsmw_catchup_carreira.cpp")==0
+          print("PRE751_PAL_GUARD_STATIC_PASS")
+          PY
