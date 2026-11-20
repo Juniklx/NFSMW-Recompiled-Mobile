@@ -22,6 +22,15 @@ jobs:
             nativo/app/tests/test_catchup_carreira_policy.cpp -o "$RUNNER_TEMP/pre744_policy_test"
           "$RUNNER_TEMP/pre744_policy_test"
           echo 'PRE744_POLICY_PASSED=1' >> "$GITHUB_STEP_SUMMARY"
+      - name: Syntax-check actual native hook against ReX SDK headers
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq >/dev/null
+          sudo apt-get install -y -qq libfmt-dev >/dev/null
+          c++ -std=c++23 -fsyntax-only \
+            -I nativo/sdk/include \
+            nativo/app/src/nfsmw_catchup_carreira.cpp
+          echo 'PRE744_REAL_SDK_HOOK_SYNTAX_PASSED=1' >> "$GITHUB_STEP_SUMMARY"
       - name: Verify source was registered once and feature is off by default
         run: |
           set -euo pipefail
