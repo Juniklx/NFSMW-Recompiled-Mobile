@@ -4,8 +4,8 @@ on:
     branches: [feature/pre744-career-catchup]
   pull_request:
     paths:
-      - 'nativo/app/src/nfsmw_catchup_carreira*'
-      - 'nativo/app/tests/test_catchup_carreira_policy.cpp'
+      - 'nativo/experimental/usa_catchup/nfsmw_catchup_carreira*'
+      - 'nativo/experimental/usa_catchup/tests/test_catchup_carreira_policy.cpp'
       - 'nativo/app/CMakeLists.txt'
       - '.github/workflows/pre744-career-catchup-policy.yml'
 permissions:
@@ -19,7 +19,7 @@ jobs:
         run: |
           set -euo pipefail
           g++ -std=c++23 -Wall -Wextra -Werror -pedantic \
-            nativo/app/tests/test_catchup_carreira_policy.cpp -o "$RUNNER_TEMP/pre744_policy_test"
+            nativo/experimental/usa_catchup/tests/test_catchup_carreira_policy.cpp -o "$RUNNER_TEMP/pre744_policy_test"
           "$RUNNER_TEMP/pre744_policy_test"
           echo 'PRE744_POLICY_PASSED=1' >> "$GITHUB_STEP_SUMMARY"
       - name: Syntax-check actual native hook against ReX SDK headers
@@ -29,20 +29,22 @@ jobs:
           sudo apt-get install -y -qq libfmt-dev libspdlog-dev libsimde-dev >/dev/null
           c++ -std=c++23 -fsyntax-only \
             -I nativo/sdk/include \
-            nativo/app/src/nfsmw_catchup_carreira.cpp
+            nativo/experimental/usa_catchup/nfsmw_catchup_carreira.cpp
           echo 'PRE744_REAL_SDK_HOOK_SYNTAX_PASSED=1' >> "$GITHUB_STEP_SUMMARY"
       - name: Verify source was registered once and feature is off by default
         run: |
           set -euo pipefail
           python3 - <<'PY'
           from pathlib import Path
-          root=Path("nativo/app")
-          cmake=(root/"CMakeLists.txt").read_text()
+          root=Path("nativo/experimental/usa_catchup")
+          cmake=Path("nativo/app/CMakeLists.txt").read_text()
           hook=(root/"src/nfsmw_catchup_carreira.cpp").read_text()
-          assert cmake.count("src/nfsmw_catchup_carreira.cpp")==0  # USA guest map not validated yet
-          assert hook.count("REX_HOOK_RAW(sub_82332898)")==1
+          assert cmake.count("src/nfsmw_catchup_carreira.cpp")==0  # PAL stays untouched
+          assert hook.count("REX_HOOK_RAW(sub_823328C0)")==1
           assert "REXCVAR_DEFINE_BOOL(nfsmw_sem_catchup_carreira, false" in hook
-          assert "__imp__sub_82332898(ctx, base);" in hook
+          assert "__imp__sub_823328C0(ctx, base);" in hook
           assert "ctx.r3.u64 = 0;" in hook
+          assert "sub_82332898" not in hook
+          assert "app_usa" in hook
           print("PRE744_STATIC_SOURCE_CHECK_PASSED")
           PY

@@ -1,5 +1,5 @@
 // PRE744 pure policy tests: no Xbox assets or Android signing needed.
-#include "../src/nfsmw_catchup_carreira_policy.h"
+#include "../nfsmw_catchup_carreira_policy.h"
 #include <cassert>
 
 using nfsmw::catchup_carreira::Neutralizar;

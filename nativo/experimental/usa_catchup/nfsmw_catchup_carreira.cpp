@@ -1,9 +1,13 @@
+// PRE747 USA-only catchup experiment: this source MUST be staged into
+// nativo/app_usa/src inside the authenticated private build workspace.
+// DO NOT link into nativo/app (PAL). Never merge into a release without
+// real USA native link and negative-control gameplay tests.
 // PRE744 -- candidate: neutralize dynamic AI Catch-Up ONLY in Career (Xbox 360 USA).
 //
-// Authenticated PRE743B guest code:
-//  sub_821060A8 -> sub_82332898 (GRaceStatus::ComputeCatchUpSkill).
+// Authenticated PRE745/PRE746 original USA guest code:
+//  sub_821060A8 -> sub_823328C0 (GRaceStatus::ComputeCatchUpSkill).
 //  r3=this GRaceStatus, r4=racer info, r5=PID, r6=output*, r7=skill*,
-//  r8=off_world. sub_82332898 reads this+6700 (context 0=Quick Race,
+//  r8=off_world. sub_823328C0 reads this+6700 (context 0=Quick Race,
 //  2=Career), this+6704 (race params), writes two float outputs, and returns
 //  a bool in r3. The Career branch does NOT consult the CatchUp attribute.
 //
@@ -45,8 +49,8 @@ void GravarFloatZero(uint8_t* base, uint32_t endereco) {
 }
 }  // namespace
 
-REX_EXTERN(__imp__sub_82332898);
-REX_HOOK_RAW(sub_82332898) {
+REX_EXTERN(__imp__sub_823328C0);
+REX_HOOK_RAW(sub_823328C0) {
   const uint32_t race_status = ctx.r3.u32;
   const uint32_t output = ctx.r6.u32;
   const uint32_t skill = ctx.r7.u32;
@@ -64,7 +68,7 @@ REX_HOOK_RAW(sub_82332898) {
       configurado, race_status, singleton, contexto, output, skill);
 
   // Preserve original side effects and all behavior in Quick Race / other modes.
-  __imp__sub_82332898(ctx, base);
+  __imp__sub_823328C0(ctx, base);
 
   if (!neutralizar) {
     return;

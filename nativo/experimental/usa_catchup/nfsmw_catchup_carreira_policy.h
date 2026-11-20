@@ -1,5 +1,5 @@
 // PRE744 career-only Catch-Up policy. Pure function, no game memory or side effects.
-// Constants validated in the original USA guest generated code (PRE741–PRE743B).
+// Constants verified for USA by PRE746; copy only to app_usa during isolated build.
 #pragma once
 
 #include <cstdint>
