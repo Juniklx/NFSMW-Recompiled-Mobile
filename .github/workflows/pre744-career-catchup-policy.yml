@@ -38,7 +38,7 @@ jobs:
           from pathlib import Path
           root=Path("nativo/experimental/usa_catchup")
           cmake=Path("nativo/app/CMakeLists.txt").read_text()
-          hook=(root/"src/nfsmw_catchup_carreira.cpp").read_text()
+          hook=(root/"nfsmw_catchup_carreira.cpp").read_text()
           assert cmake.count("src/nfsmw_catchup_carreira.cpp")==0  # PAL stays untouched
           assert hook.count("REX_HOOK_RAW(sub_823328C0)")==1
           assert "REXCVAR_DEFINE_BOOL(nfsmw_sem_catchup_carreira, false" in hook
